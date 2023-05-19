@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Mediblokc.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n// import 'hardhat/console.sol';\n  \ncontract Mediblokc {\n  struct Record {\n    string doctorId;\n    string recordId;\n  }\n\n  mapping (string => Record[]) private patientRecords;\n  mapping (string => string[]) private patientRecordIds;\n\n  event Transaction(string indexed doctorId, string indexed patientId, string indexed recordId);\n  event ErrorEvent(string mess, string indexed doctorId, string indexed patientId, string indexed recordId);\n\n  function saveTransaction(string memory _doctorId, string memory _patientId, string memory _recordId) external {\n    if (bytes(_patientId).length == 0 || bytes(_recordId).length == 0 || bytes(_doctorId).length == 0) {\n        emit ErrorEvent(\"%s %s %s invalid id\", _doctorId, _patientId, _recordId);\n        revert(\"Mediblokc__InvalidId\");\n    }\n    \n    if (keccak256(bytes(_doctorId)) == keccak256(bytes(_patientId))) {\n        emit ErrorEvent(\"%s %s %s invalid address\", _doctorId, _patientId, _recordId);\n        revert(\"Mediblokc__InvalidAddress\");\n    }\n    \n    Record memory record = Record(_doctorId, _recordId);\n    patientRecords[_patientId].push(record);\n    patientRecordIds[_patientId].push(_recordId);\n    emit Transaction(_doctorId, _patientId, _recordId);\n}\n\n  function viewRecords(string memory _patientId) external view returns (string[] memory) {\n    return patientRecordIds[_patientId]; \n  }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
